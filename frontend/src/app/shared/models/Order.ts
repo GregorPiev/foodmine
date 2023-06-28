@@ -9,6 +9,6 @@ export class Order{
  addressLatLng?: LatLng;
  address!: string;
  paymentId!: string;
- createAt!: string;
+ createdAt!: string;
  status!:string;
 }

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { HTTP_BAD_REQUEST } from '../constants/http_constants';
-import { OrderModel } from '../models/order.model';
+import { OrderModel, orderSchema } from '../models/order.model';
 import { OrderStatus } from '../constants/order_status';
 import auth from '../middlewares/auth.mid';
 
@@ -31,10 +31,40 @@ router.post('/create',
 
 router.get('/newOrderForCurrentUser',
     asyncHandler(async (req: any, res) => {
-        const order = await OrderModel.findOne({user: req.user.id, status: OrderStatus.NEW});
+        const order = await getNewOrderForCurrentUser(req);
         if(order) res.send(order);
         else      res.status(HTTP_BAD_REQUEST).send();
     })
 );
+
+router.post('/pay', asyncHandler(async (req:any,res)=>{
+        const {paymentId} = req.body;
+        const order = await getNewOrderForCurrentUser(req);
+
+        if(!order) {
+            res.status(HTTP_BAD_REQUEST).send('Order Not Found');
+            return;
+        }
+
+        order.paymentId = paymentId;
+        order.status = OrderStatus.PAYED;
+        await order.save();
+
+        res.send(order._id);
+
+}));
+
+router.get('/track/:id', asyncHandler(
+    async(req,res) =>{        
+        const order = await OrderModel.findById(req.params.id);
+        res.send(order);
+    }
+))
+
+async function getNewOrderForCurrentUser(req: any){
+    return await OrderModel.findOne({user: req.user.id, status: OrderStatus.NEW});
+}
+
+
 
 export default router;
