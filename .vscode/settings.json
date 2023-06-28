@@ -3,6 +3,8 @@
         "addess",
         "Foodmine",
         "LATLNG",
-        "Toastr"
+        "middlewares",
+        "Toastr",
+        "virtuals"
     ]
 }
